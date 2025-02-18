@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: ${PORT}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+
+      # Env Railway
+      PGHOST: ${PGHOST}
+      PGPORT: ${PGPORT}
+      PGUSER: ${PGUSER}
+      PGPASSWORD: ${PGPASSWORD}
+      PGDATABASE: ${PGDATABASE}
+
+      # Env Local
+      # DB_HOST: db
+      # DB_PORT: ${DB_PORT}
+      # DB_USER: ${DB_USER}
+      # DB_PASSWORD: ${DB_PASSWORD}
+      # DB_NAME: ${DB_NAME}
+
+    # depends_on:
+    #   - db
+
+  # db:
+  #   image: postgres:latest
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: technical-test-PRO
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - "postgres_data:/var/lib/postgresql/data"
+
+volumes:
+  postgres_data:
