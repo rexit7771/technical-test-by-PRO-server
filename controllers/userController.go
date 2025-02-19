@@ -166,7 +166,7 @@ func GetAllUser(c *gin.Context) {
 	var users []structs.User
 	query := database.DB.Model(&structs.User{})
 	helpers.QuerySearch(c, query)
-	err := query.Find(&users).Error
+	err := query.Where("role = ?", "member").Find(&users).Error
 	if err != nil {
 		response.AbortResponse(c, http.StatusNotFound, "Users data is not found")
 		return

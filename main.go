@@ -25,6 +25,7 @@ func main() {
 		userGroup.GET("", controllers.GetUserByIdAuth)
 		userGroup.Use(middlewares.IsAdmin())
 		userGroup.GET("/all", controllers.GetAllUser)
+		userGroup.GET("/:id", controllers.GetUserByIdParam)
 		userGroup.PUT("/:id", controllers.EditUserById)
 		userGroup.DELETE("/:id", controllers.DeleteUserById)
 	}
