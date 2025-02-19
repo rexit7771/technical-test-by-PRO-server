@@ -17,6 +17,7 @@ func main() {
 	router := gin.Default()
 	router.Use(middlewares.CORSMiddleware())
 	router.POST("/login", controllers.Login)
+	router.POST("/login/admin", controllers.LoginAdmin)
 	router.POST("/register", controllers.AddNewUser)
 	userGroup := router.Group("/users")
 	{

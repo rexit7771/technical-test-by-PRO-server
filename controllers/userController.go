@@ -44,6 +44,51 @@ func AddNewUser(c *gin.Context) {
 	response.CommonResponse(c, http.StatusCreated, "User registered successfully")
 }
 
+func LoginAdmin(c *gin.Context) {
+	var admin structs.User
+	if err := c.ShouldBindJSON(&admin); err != nil {
+		response.AbortResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if admin.Email == "" {
+		response.AbortResponse(c, http.StatusBadRequest, "Email is required")
+		return
+	}
+
+	if admin.Password == "" {
+		response.AbortResponse(c, http.StatusBadRequest, "Password is required")
+		return
+	}
+
+	var adminDB structs.User
+	tx := database.DB.Where("email = ?", admin.Email).First(&admin)
+	if tx.Error != nil {
+		response.AbortResponse(c, http.StatusNotFound, "Invalid Email / Password")
+		return
+	}
+
+	if adminDB.Role != "admin" {
+		response.AbortResponse(c, http.StatusForbidden, "Only admin can access this")
+		return
+	}
+
+	bcryptResult := bcrypt.CompareHashAndPassword([]byte(adminDB.Password), []byte(admin.Password))
+	if bcryptResult != nil {
+		response.AbortResponse(c, http.StatusNotFound, "Invalid Email / Password")
+		return
+	}
+
+	token, tokenError := helpers.SignPayLoad(adminDB)
+	if tokenError != nil {
+		fmt.Print(tokenError)
+		response.AbortResponse(c, http.StatusInternalServerError, tokenError.Error())
+		return
+	}
+
+	response.TokenResponse(c, token)
+}
+
 func Login(c *gin.Context) {
 	var user structs.User
 	if err := c.ShouldBindJSON(&user); err != nil {

@@ -37,7 +37,7 @@ func init() {
 
 	validate.RegisterValidation("birthdate", validateBirthDate)
 	validate.RegisterTranslation("birthdate", translator, func(ut ut.Translator) error {
-		return ut.Add("birthdate", "{0} must be a valid date in the format YYYY-MM-DD and before today", true)
+		return ut.Add("birthdate", "{0} must be before today", true)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T("birthdate", fe.Field())
 		return t
