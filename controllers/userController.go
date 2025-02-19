@@ -62,7 +62,7 @@ func LoginAdmin(c *gin.Context) {
 	}
 
 	var adminDB structs.User
-	tx := database.DB.Where("email = ?", admin.Email).First(&admin)
+	tx := database.DB.Where("email = ?", admin.Email).First(&adminDB)
 	if tx.Error != nil {
 		response.AbortResponse(c, http.StatusNotFound, "Invalid Email / Password")
 		return
