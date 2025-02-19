@@ -1,13 +1,21 @@
 package structs
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	enTranslations "github.com/go-playground/validator/v10/translations/en"
 	"gorm.io/gorm"
 )
 
-var validate *validator.Validate
+var (
+	validate   *validator.Validate
+	translator ut.Translator
+)
 
 type User struct {
 	gorm.Model
@@ -21,7 +29,26 @@ type User struct {
 
 func init() {
 	validate = validator.New()
+	enLocale := en.New()
+	uni := ut.New(enLocale, enLocale)
+	translator, _ = uni.GetTranslator("en")
+
+	enTranslations.RegisterDefaultTranslations(validate, translator)
+
 	validate.RegisterValidation("birthdate", validateBirthDate)
+	validate.RegisterTranslation("birthdate", translator, func(ut ut.Translator) error {
+		return ut.Add("birthdate", "{0} must be a valid date in the format YYYY-MM-DD and before today", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("birthdate", fe.Field())
+		return t
+	})
+
+	validate.RegisterTranslation("required", translator, func(ut ut.Translator) error {
+		return ut.Add("required", "{0} is a required", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("required", fe.Field())
+		return t
+	})
 }
 
 func validateBirthDate(fl validator.FieldLevel) bool {
@@ -34,5 +61,13 @@ func validateBirthDate(fl validator.FieldLevel) bool {
 }
 
 func (u *User) Validate() error {
-	return validate.Struct(u)
+	err := validate.Struct(u)
+	if err != nil {
+		var errorMessages []string
+		for _, err := range err.(validator.ValidationErrors) {
+			errorMessages = append(errorMessages, err.Translate(translator))
+		}
+		return fmt.Errorf(strings.Join(errorMessages, ", "))
+	}
+	return nil
 }

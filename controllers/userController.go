@@ -18,11 +18,11 @@ func AddNewUser(c *gin.Context) {
 	var newUser structs.User
 	if err := c.ShouldBindJSON(&newUser); err != nil {
 		fmt.Print(err.Error())
-		response.AbortResponse(c, http.StatusBadRequest, err.Error())
+		response.AbortResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	if err := newUser.Validate(); err != nil {
-		fmt.Print(err.Error())
+		fmt.Print(err)
 		response.AbortResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
